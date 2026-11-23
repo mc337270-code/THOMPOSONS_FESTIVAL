@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Thompsons, festival de música e cultura: inscrição com QR Code, check-in nas atividades e certificado cultural em PDF.">
+  <title>Thompsons Festival | Credenciamento Digital</title>
+
+  <!-- Fontes do projeto (com alternativas caso estejam sem internet) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bowlby+One&family=Figtree:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- CSS separado -->
+  <link rel="stylesheet" href="./style.css?v=3">
+
+  <!-- jsPDF (geração de PDF no navegador) e script.js. O defer garante a ordem e que o HTML já exista quando o JS rodar -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js'"></script>
+  <script src="./script.js?v=3" defer></script>
+</head>
+<body>
+
+  <!-- Cabeçalho com a marca e o menu de navegação -->
+  <header class="topo">
+    <a class="marca" href="#inicio">Thompsons</a>
+
+    <!-- Tag semântica <nav> para os links de navegação -->
+    <nav aria-label="Navegação principal">
+      <a href="#inscricao">Inscrição</a>
+      <a href="#checkin">Check-in</a>
+    </nav>
+    <details class="menu-certificado">
+      <summary>Certificado ▾</summary>
+      <div class="menu-certificado__opcoes">
+        <a href="#login">Login do participante</a>
+        <a href="#certificado">Baixar certificado</a>
+      </div>
+    </details>
+  </header>
+
+  <!-- Tag semântica <main>: única na página, reúne o conteúdo principal -->
+  <main>
+
+    <section id="inicio" class="hero" aria-labelledby="titulo-festival">
+      <div class="hero__texto">
+        <h1 id="titulo-festival">Thompsons</h1>
+        <p class="hero__subtitulo">Festival de música e cultura 2026</p>
+        <p class="hero__descricao">
+          Show de abertura, oficina de produção musical, mostra de cinema e conversa nos bastidores.
+          Faça sua inscrição, receba o QR Code e acumule presenças para garantir o seu certificado cultural.
+        </p>
+        <a class="botao" href="#inscricao">Quero meu ingresso</a>
+      </div>
+      <div class="hero__ondas" aria-hidden="true"></div>
+    </section>
+
+    <!-- ETAPA 1: INSCRIÇÃO + QR CODE -->
+    <section id="inscricao" class="secao" aria-labelledby="titulo-inscricao">
+      <h2 id="titulo-inscricao">Inscrição e ingresso com QR Code</h2>
+      <p class="secao__intro">
+        Preencha seus dados, escolha o tipo de acesso e o estilo musical que mais combina com você.
+        Ao concluir, seu ingresso aparece com o QR Code de credenciamento.
+      </p>
+
+      <div class="duas-colunas">
+        <form id="form-inscricao" class="painel">
+          <label for="nome">Nome completo</label>
+          <input type="text" id="nome" name="nome" placeholder="Ex.: Maria Clara Souza" autocomplete="name" required>
+
+          <label for="cpf">CPF (apenas números)</label>
+          <input type="text" id="cpf" name="cpf" inputmode="numeric" placeholder="000.000.000-00" maxlength="14" autocomplete="off" required>
+
+          <!-- Campos novos, pensados para o público do festival -->
+          <label for="email">E-mail</label>
+          <input type="email" id="email" name="email" placeholder="voce@exemplo.com" autocomplete="email" required>
+
+          <label for="acesso">Tipo de acesso</label>
+          <select id="acesso" name="acesso" required>
+            <option value="" selected disabled>Selecione</option>
+            <option value="Pista">Pista</option>
+            <option value="VIP">VIP</option>
+            <option value="Backstage">Backstage</option>
+          </select>
+
+          <label for="estilo">Estilo musical favorito</label>
+          <select id="estilo" name="estilo" required>
+            <option value="" selected disabled>Selecione</option>
+            <option value="MPB">MPB</option>
+            <option value="Rock">Rock</option>
+            <option value="Samba e pagode">Samba e pagode</option>
+            <option value="Rap e hip hop">Rap e hip hop</option>
+            <option value="Eletrônica">Eletrônica</option>
+            <option value="Forró">Forró</option>
+            <option value="Jazz e blues">Jazz e blues</option>
+            <option value="Outro">Outro</option>
+          </select>
+
+          <button type="submit" class="botao" id="btn-inscrever">Fazer inscrição</button>
+          <p id="msg-inscricao" class="mensagem" role="alert"></p>
+        </form>
+
+        <div class="coluna-ingresso">
+          <!-- Estado vazio: some quando o ingresso é gerado -->
+          <div id="ingresso-vazio" class="ingresso-vazio">
+            <p>Seu ingresso aparece aqui assim que você concluir a inscrição.</p>
+          </div>
+
+          <!-- Ingresso com QR Code: <img> com src dinâmico e alt atualizado pelo JavaScript -->
+          <article id="area-qr" class="ingresso" hidden>
+            <div class="ingresso__info">
+              <p id="saudacao" class="ingresso__saudacao"></p>
+              <dl class="ingresso__dados">
+                <div><dt>Acesso</dt><dd id="ing-acesso"></dd></div>
+                <div><dt>Estilo favorito</dt><dd id="ing-estilo"></dd></div>
+                <div><dt>CPF</dt><dd id="ing-cpf"></dd></div>
+              </dl>
+            </div>
+            <div class="ingresso__qr">
+              <img id="img-qr" alt="QR Code de credenciamento do participante" width="168" height="168">
+              <p>Apresente este código em cada atividade. Ao escanear, abre o site e identifica seu ingresso para o check-in.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOGIN: consulta o cadastro pelo CPF -->
+    <section id="login" class="secao" aria-labelledby="titulo-login">
+      <h2 id="titulo-login">Login do participante</h2>
+      <p class="secao__intro">Informe o CPF usado na inscrição para acessar seu circuito e consultar a disponibilidade do certificado.</p>
+      <form id="form-login" class="painel login-painel">
+        <label for="cpf-login">CPF cadastrado</label>
+        <input type="text" id="cpf-login" inputmode="numeric" placeholder="000.000.000-00" maxlength="14" autocomplete="off" required>
+        <button type="submit" class="botao">Entrar</button>
+        <p id="status-login" class="mensagem" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <!-- ETAPA 2: CHECK-IN NAS ATIVIDADES -->
+    <section id="checkin" class="secao" aria-labelledby="titulo-checkin">
+      <h2 id="titulo-checkin">Check-in nas atividades</h2>
+      <p class="secao__intro">
+        Digite o CPF do QR Code, escolha a atividade e registre a presença.
+        O circuito tem 4 atividades e o certificado é liberado com 3.
+      </p>
+
+      <div class="duas-colunas">
+        <div class="painel">
+          <label for="cpf-checkin">CPF do participante</label>
+          <input type="text" id="cpf-checkin" inputmode="numeric" placeholder="000.000.000-00" maxlength="14" autocomplete="off">
+
+          <label for="atividade">Atividade</label>
+          <select id="atividade"></select>
+
+          <button type="button" class="botao" id="btn-checkin">Registrar presença</button>
+          <p id="status-checkin" class="mensagem" role="status" aria-live="polite"></p>
+        </div>
+
+        <div class="painel painel--escuro">
+          <h3>Seu circuito</h3>
+          <p id="texto-progresso" class="progresso__texto">0 de 4 atividades (0%)</p>
+          <div id="progresso" class="progresso" role="progressbar" aria-labelledby="texto-progresso" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-liberado="false">
+            <div class="progresso__trilho"><div id="barra-progresso" class="progresso__barra"></div></div>
+            <span class="progresso__marca"></span>
+          </div>
+          <p class="progresso__legenda">A marca rosa indica os 75% que liberam o certificado.</p>
+          <ul id="lista-carimbos" class="carimbos"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ETAPA 3: CERTIFICADO EM PDF (liberado só com 75% de presença) -->
+    <section id="certificado" class="secao" aria-labelledby="titulo-certificado">
+      <div class="faixa-certificado">
+        <div class="faixa-certificado__texto">
+          <h2 id="titulo-certificado">Certificado cultural</h2>
+          <p>Disponível para quem cumprir pelo menos 75% do circuito, ou seja, 3 das 4 atividades.</p>
+          <p id="status-certificado" class="mensagem"></p>
+        </div>
+        <div class="acoes-certificado">
+          <button type="button" class="botao botao--escuro" id="btn-pdf" disabled>Gerar meu certificado em PDF</button>
+          <p class="ajuda-certificado">O PDF será criado com seu nome, dados do ingresso, atividades concluídas, frequência e data de emissão.</p>
+        </div>
+      </div>
+      <div id="resultado-pdf" class="resultado-pdf" hidden>
+        <h3>Seu certificado está pronto</h3>
+        <p>Você pode visualizar abaixo ou abrir/baixar o arquivo PDF.</p>
+        <div class="botoes-pdf">
+          <a id="abrir-pdf" class="botao" target="_blank" rel="noopener">Visualizar PDF</a>
+          <a id="baixar-pdf" class="botao botao--escuro" download="certificado-thompsons.pdf">Baixar PDF</a>
+        </div>
+        <iframe id="visualizador-pdf" title="Pré-visualização do certificado em PDF"></iframe>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="rodape">
+    <p>Thompsons, festival de música e cultura 2026. Projeto acadêmico da disciplina Desenvolvimento de Aplicações para Internet (2º ADS).</p>
+    <p class="rodape__auditoria"><strong>Auditoria do projeto e evento:</strong> Maria Clara Araujo</p>
+  </footer>
+
+</body>
+</html>
